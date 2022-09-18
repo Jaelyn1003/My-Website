@@ -2,21 +2,21 @@ baseURL: https://jaelyn-shi.netlify.app
 languageCode: en-us
 summaryLength: '10'
 theme: kross-hugo
-title: Kross
+title: Jaelyn's Website
 params:
-  address: 125/A, CA Commercial Area, California, USA
-  author: Johnathan Smith
+  address: London Business School, Regent's Park, NW1 4SA, London, UK
+  author: Jaelyn Shi
   baidu_analytics_id: ''
   baidu_site_verification: ''
   contact:
     enable: yes
     form_action: '#'
-  cookies:
-    enable: yes
-    expire_days: 2
-  copyright: Copyright &copy; 2021 a Theme by [Gethugothemes](https://gethugothemes.com)
+#  cookies:
+#    enable: yes
+#    expire_days: 2
+  copyright: Copyright &copy; 2022 by Jaelyn Shi
   description: This is meta description
-  email: steve.fruits@email.com
+  email: doreen_slj@hotmail.com
   google_analytics_id: ''
   home: Home
   logo: ''
@@ -26,7 +26,7 @@ params:
     map_latitude: '51.5223477'
     map_longitude: '-0.1622023'
     map_marker: images/marker.png
-  phone: +880 2544 658 256
+  phone: +44 078 1837 7676
   plugins:
     css:
       - link: plugins/bootstrap/bootstrap.min.css
@@ -42,25 +42,28 @@ params:
     enable: yes
     preloader: images/preloader.gif
   social:
-    - URL: '#'
-      icon: ti-facebook
-    - URL: '#'
+    #- URL: '#'
+    #  icon: ti-facebook
+    - URL: 'https://www.instagram.com/jaelyn.1003/'
       icon: ti-instagram
-    - URL: '#'
-      icon: ti-dribbble
-    - URL: '#'
-      icon: ti-twitter-alt
+    #- URL: '#'
+    #  icon: ti-dribbble
+    #- URL: '#'
+    #  icon: ti-twitter-alt
+    - URL: 'https://www.linkedin.com/in/jaelyn-s-a21355196/'
+      icon: ti-linkedin
+      
   theme_color: '#41228e'
 menu:
   main:
     - URL: about/
       name: About
       weight: 1
-    - URL: blog/
-      name: Blog
-      weight: 2
+    # - URL: blog/
+    #   name: Blog
+    #   weight: 2
     - URL: portfolio/
-      name: Portfolio
+      name: Projects
       weight: 3
     - URL: contact/
       name: Contact
