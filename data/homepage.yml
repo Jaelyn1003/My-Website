@@ -101,7 +101,7 @@ education:
 
 # portfolio
 portfolio:
-  enable : true
+  enable : false
   title : "Projects"
   item_show : 4
   # portfolio item comes from 'data/portfolio.yml' item.
@@ -162,6 +162,6 @@ clients_logo_slider:
 
 # blog
 blog:
-  enable : false
+  enable : true
   title : "Blogs"
   # blog post comes from "content/blog" folder
