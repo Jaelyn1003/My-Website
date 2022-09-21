@@ -42,7 +42,7 @@ library(scales)
 ```
 
 
-#Spotify Data Analysis
+### Spotify Data Analysis
 
 We have downloaded a large dataset on spotify songs and are going to analyse what makes a track popular.
 
@@ -247,9 +247,7 @@ ggplot(spotify_songs) +
 #  Mode only includes 0 or 1, nothing else.
 ```
 
-
 We choose valence and danceability to start analysing what determines the track popularity. 
-
 
 ```{r}
 ggplot(spotify_songs) +
@@ -268,7 +266,6 @@ cor(spotify_songs$valence, spotify_songs$track_popularity)
 ```
 
 Track popularity and valence do not appear to have a clear relationship, the values for both are spread out across the scatter plot and the correlation coefficient is very low.
-
 
 ```{r}
 ggplot(spotify_songs) +
@@ -300,7 +297,6 @@ mode_analysis <- spotify_songs %>%
 
 mode_analysis
 ```
-
 
 ```{r}
 library(BSDA)
@@ -347,7 +343,7 @@ mode0 <- filter(spotify_songs, mode == 0)
 
 There appears to be no significant difference in track_popularity between major and minor modes. Based on these analyses, we cannot yet decide what audio features determine the popularity of songs.
 
-### Details
+##### Details
 
 -   Our team members are: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew Robak, Shivant Maharaj
 

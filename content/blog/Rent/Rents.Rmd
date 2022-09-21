@@ -41,7 +41,7 @@ library(tidyquant)
 library(scales)
 ```
 
-# Rents in San Francisco 2000-2018
+### Rents in San Francisco 2000-2018
 
 We are analysing a dataset of Craiglist listings for rental properties in the greater SF area.
 The data dictionary is as follows
@@ -86,7 +86,6 @@ head(rent)
 
 
 Most column types correspond with what they should be, but date is stored as a double '20050111' instead of a date 2005-01-11. Other column types like number of bedrooms (beds) are a double where an integer suffices. We could change this to integer to use less storage space. Description has the most missing values, after which address and details follow with also 190000+ missing values.
-
 
 We have plotted the top 20 cities in terms of % of rental listings. 
 
@@ -189,8 +188,7 @@ ggplot(one_bed_bay_area) +
 
 We can clearly spot the financial crisis happening in 2008, when all the prices are going down across the cities and types of bedrooms in San Francisco. The effect is the smallest in Santa Rosa and Oakland, where we also don't see an increase ahead of the recession, so a limited decrease is not unsurprising. The effect is the greatest where the increase is also the greatest, for example a three-bedroom in San Francisco or Santa Clara. 
 
-
-### Details
+##### Details
 
 -   Our team members are: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew Robak, Shivant Maharaj
 

@@ -41,7 +41,7 @@ library(tidyquant)
 library(scales)
 ```
 
-# Analysis of movies- IMDB dataset
+### Analysis of movies- IMDB dataset
 
 We are now analysing a dataset from imbd with 5000 movies. We will analyse the differences between genres in terms of ratings, popularity (facebook likes), and revenue.
 
@@ -53,8 +53,7 @@ movies <- read_csv("https://raw.githubusercontent.com/jas0nh/hello-world/master/
 
 The movies dataset was imported and inspected using Skimr, and there were no missing values identified within the dataset. When checking for duplicates within the dataset, we identified that there were 54 duplicated titles which may result in duplicated entries within the dataset.
 
-
-### Table showing the amount of IMBD movies per genre
+##### Table showing the amount of IMBD movies per genre
 
 ```{r , count_of_movies_per_genre}
 
@@ -66,9 +65,7 @@ movies_by_genre <- movies %>%
 movies_by_genre
 ```
 
-
-
-### Table showing movie revenue indicators per genre
+##### Table showing movie revenue indicators per genre
 
 ```{r , avg_gross_earning}
 
@@ -81,8 +78,7 @@ movies %>%
 
 ```
 
-
-### Table showing the Top 15 directors ranked by highest mean gross revenue
+##### Table showing the Top 15 directors ranked by highest mean gross revenue
 
 ```{r , top_directors}
 
@@ -93,10 +89,9 @@ movies %>%
 
 ```
 
+#### Graphics showing the spread of IMDB ratings per genre
 
-## Graphics showing the spread of IMDB ratings per genre
-
-### Table showing the summary statistics for IMDB movie ratings
+##### Table showing the summary statistics for IMDB movie ratings
 
 We have added both a density graph and a box plot to visually represent how ratings are distributed. We believe that the box plot more accurately represents the distribution of ratings per genre, with taking the count of rating submissions as well. When cross-analyzing the various distributions, the box plot diagrams allow for an easier comparison between genres.
 
@@ -154,7 +149,6 @@ ggplot(movies) +
 
 ```
 
-
 Gross US Earnings could be predicted by looking at the movie's budget as the two variables display a positive relationship relationship.
 
 ```{r, gross_on_budget}
@@ -194,7 +188,7 @@ ggplot(movies) +
   )
 ```
 
-### Details
+##### Details
 
 -   Our team members are: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew Robak, Shivant Maharaj
 

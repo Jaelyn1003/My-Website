@@ -41,7 +41,7 @@ library(tidyquant)
 library(scales)
 ```
 
-# Returns of financial stocks
+### Returns of financial stocks
 
 Before we can analyse the returns of stocks, we decide which companies we want to analyse.
 
@@ -131,9 +131,7 @@ myStocks_returns_annual <- myStocks %>%
                cols = c(nested.col))
 ```
 
-
-
-### Summary Statistics For Monthly Returns
+##### Summary Statistics For Monthly Returns
 
 ```{r summarise_monthly_returns}
 summary_monthly_returns <- myStocks_returns_monthly %>% 
@@ -147,7 +145,6 @@ summary_monthly_returns <- myStocks_returns_monthly %>%
   
 summary_monthly_returns
 ```
-
 
 To analyse the distribution of the returns, we plot a density plot for each of the stocks.
 
@@ -173,7 +170,6 @@ myStocks_returns_monthly %>%
 # YOUR CODE GOES HERE
 
 ```
-
 
 The graph shows that TSLA has the widest spread, suggesting it has the greatest deviation from the mean and thus is the most risky stock. The remaining stocks have a similar spread, we need further analysis to come to a concrete conclusion to determine which stock is the least risky.
 
@@ -202,7 +198,7 @@ Finally we made a plot to show the expected monthly return per stock.
 
 According to our analysis, TSLA stock is the most risky stock with fluctuations around 5%. It also offers the highest return with an expected monthly return of 16%. On the other hand MMM provides the least risk with fluctations less than 1% and also offers a relatively high retrun, which is above 4%.
 
-### Details
+##### Details
 
 -   Our team members are: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew Robak, Shivant Maharaj
 
