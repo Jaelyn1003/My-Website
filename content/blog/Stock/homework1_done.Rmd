@@ -12,7 +12,7 @@ output:
     code_folding: show
 ---
 
-```{r, setup, echo=FALSE}
+```{r, setup, echo=FALSE, class="bg-info"}
 knitr::opts_chunk$set(
   message = FALSE, 
   warning = FALSE, 
@@ -45,7 +45,7 @@ library(scales)
 
 Before we can analyse the returns of stocks, we decide which companies we want to analyse.
 
-```{r load_nyse_data, message=FALSE, warning=FALSE}
+```{r load_nyse_data, message=FALSE, warning=FALSE, class="bg-info"}
 nyse <- read_csv(here::here("data1","nyse.csv"))
 glimpse(nyse)
 ```
