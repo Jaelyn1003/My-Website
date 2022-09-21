@@ -1,0 +1,208 @@
+---
+title: "Analysis of Financial Stocks"
+author: "Group 12 of MAM2023 @ LBS"
+date: "`r Sys.Date()`"
+image: images/blog/stock.jpeg
+output:
+  html_document:
+    theme: flatly
+    highlight: zenburn
+    number_sections: yes
+    toc: yes
+    code_folding: show
+---
+
+```{r, setup, echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+```{r load-libraries, warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(lubridate)
+library(here)
+library(skimr)
+library(janitor)
+library(vroom)
+library(tidyquant)
+library(scales)
+```
+
+# Returns of financial stocks
+
+Before we can analyse the returns of stocks, we decide which companies we want to analyse.
+
+```{r load_nyse_data, message=FALSE, warning=FALSE}
+nyse <- read_csv(here::here("data1","nyse.csv"))
+glimpse(nyse)
+```
+
+Based on this dataset, we are showing the number of companies per sector.
+
+```{r companies_per_sector}
+comp_per_sector <- nyse %>% 
+  group_by(sector) %>% 
+  summarise(companies = n()) %>% 
+  slice_max(companies, n=100) %>% 
+  mutate(sector = fct_reorder(sector, companies))
+comp_per_sector 
+ggplot(comp_per_sector) +
+  aes(x = companies, y = sector) +
+  geom_col() +
+  labs(
+    title = 'Finance is the Largest Sector, Consumer Durables is the smallest',
+    subtitle = "Companies Per Sector",
+    x = 'Companies',
+    y = 'Sector',
+    caption = 'Source: Federal Reserve Economic Database',
+  ) 
+
+comp_per_sector <- nyse %>% 
+  group_by(sector) %>% 
+  summarise(companies = n()) %>% 
+  slice_max(companies, n=100) %>% 
+  mutate(sector = fct_reorder(sector, companies))
+  
+ggplot(comp_per_sector) +
+  aes(x = companies, y = sector) +
+  geom_col()
+comp_per_sector
+nyse
+
+```
+
+We are choosing some stocks and downloading their ticker data to analyse. 
+
+```{r get_price_data, message=FALSE, warning=FALSE, cache=TRUE}
+# Notice the cache=TRUE argument in the chunk options. Because getting data is time consuming, 
+# cache=TRUE means that once it downloads data, the chunk will not run again next time you knit your Rmd
+
+myStocks <- c("MMM","ABT","ACN","ANTM","AGR","TSLA","SPY" ) %>%
+  tq_get(get  = "stock.prices",
+         from = "2011-01-01",
+         to   = "2022-08-31") %>%
+  group_by(symbol) 
+
+glimpse(myStocks) # examine the structure of the resulting data frame
+```
+
+Financial performance analysis depend on returns; If I buy a stock today for 100 and I sell it tomorrow for 101.75, my one-day return, assuming no transaction costs, is 1.75%. So given the adjusted closing prices, our first step is to calculate daily and monthly returns.
+
+```{r calculate_returns, message=FALSE, warning=FALSE, cache=TRUE}
+#calculate daily returns
+myStocks_returns_daily <- myStocks %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "daily", 
+               type       = "log",
+               col_rename = "daily_returns",
+               cols = c(nested.col))  
+
+#calculate monthly  returns
+myStocks_returns_monthly <- myStocks %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "monthly", 
+               type       = "arithmetic",
+               col_rename = "monthly_returns",
+               cols = c(nested.col)) 
+
+#calculate yearly returns
+myStocks_returns_annual <- myStocks %>%
+  group_by(symbol) %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "yearly", 
+               type       = "arithmetic",
+               col_rename = "yearly_returns",
+               cols = c(nested.col))
+```
+
+
+
+### Summary Statistics For Monthly Returns
+
+```{r summarise_monthly_returns}
+summary_monthly_returns <- myStocks_returns_monthly %>% 
+  
+  group_by(symbol) %>% 
+  summarise(min_return = min(monthly_returns),
+            max_return = max(monthly_returns),
+            median_return = median(monthly_returns),
+            mean_return = mean(monthly_returns),
+            sd_return = sd(monthly_returns))
+  
+summary_monthly_returns
+```
+
+
+To analyse the distribution of the returns, we plot a density plot for each of the stocks.
+
+```{r density_monthly_returns}
+myStocks_returns_monthly %>% 
+  group_by(symbol) %>% 
+  ggplot() +
+  aes (x = monthly_returns, fill = symbol) +
+  geom_density() +
+  labs(
+    title = 'TSLA Has the Widest Spread',
+    subtitle = 'Density Plot - Stockwise Monthly Return',
+    x = 'Return',
+    y = 'Density',
+    caption = 'Source: Federal Reserve Economic Database'
+  ) +
+  facet_wrap(~symbol, ncol = 1) +
+  #facet_grid()+
+ theme_bw()+
+  theme(legend.position = "none")+
+  scale_x_continuous(labels = scales::percent)
+
+# YOUR CODE GOES HERE
+
+```
+
+
+The graph shows that TSLA has the widest spread, suggesting it has the greatest deviation from the mean and thus is the most risky stock. The remaining stocks have a similar spread, we need further analysis to come to a concrete conclusion to determine which stock is the least risky.
+
+Finally we made a plot to show the expected monthly return per stock. 
+
+```{r risk_return_plot}
+  summary_monthly_returns %>% 
+  ggplot() +
+  aes(x = mean_return, y = sd_return, label = symbol, colour = symbol)+
+  ggrepel::geom_text_repel()+
+  geom_point()+
+  coord_flip()+
+ # theme_minimal()+
+  theme(legend.position = "none")+
+  scale_x_continuous(labels = scales::percent)+
+  scale_y_continuous(labels = scales::percent)+
+  labs(
+    title = "Tesla Stock Involves the Highest Risk and Return" ,
+    subtitle = "Risk Return Analysis",
+    x = "Percentage Risk Involved",
+    y = "Expected Monthly Return",
+    caption = 'Source: Federal Reserve Economic Database'
+  )
+
+```
+
+According to our analysis, TSLA stock is the most risky stock with fluctuations around 5%. It also offers the highest return with an expected monthly return of 16%. On the other hand MMM provides the least risk with fluctations less than 1% and also offers a relatively high retrun, which is above 4%.
+
+### Details
+
+-   Our team members are: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew Robak, Shivant Maharaj
+

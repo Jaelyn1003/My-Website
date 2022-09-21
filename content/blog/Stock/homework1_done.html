@@ -1,0 +1,224 @@
+---
+title: "Analysis of Financial Stocks"
+author: "Group 12 of MAM2023 @ LBS"
+date: "2022-09-21"
+image: images/blog/stock.jpeg
+output:
+  html_document:
+    theme: flatly
+    highlight: zenburn
+    number_sections: yes
+    toc: yes
+    code_folding: show
+---
+
+
+
+<div id="returns-of-financial-stocks" class="section level1">
+<h1>Returns of financial stocks</h1>
+<p>Before we can analyse the returns of stocks, we decide which companies we want to analyse.</p>
+<pre class="r"><code>nyse &lt;- read_csv(here::here(&quot;data1&quot;,&quot;nyse.csv&quot;))
+glimpse(nyse)</code></pre>
+<pre><code>## Rows: 508
+## Columns: 6
+## $ symbol        &lt;chr&gt; &quot;MMM&quot;, &quot;ABB&quot;, &quot;ABT&quot;, &quot;ABBV&quot;, &quot;ACN&quot;, &quot;AAP&quot;, &quot;AFL&quot;, &quot;A&quot;, &quot;…
+## $ name          &lt;chr&gt; &quot;3M Company&quot;, &quot;ABB Ltd&quot;, &quot;Abbott Laboratories&quot;, &quot;AbbVie …
+## $ ipo_year      &lt;chr&gt; &quot;n/a&quot;, &quot;n/a&quot;, &quot;n/a&quot;, &quot;2012&quot;, &quot;2001&quot;, &quot;n/a&quot;, &quot;n/a&quot;, &quot;1999…
+## $ sector        &lt;chr&gt; &quot;Health Care&quot;, &quot;Consumer Durables&quot;, &quot;Health Care&quot;, &quot;Heal…
+## $ industry      &lt;chr&gt; &quot;Medical/Dental Instruments&quot;, &quot;Electrical Products&quot;, &quot;Ma…
+## $ summary_quote &lt;chr&gt; &quot;https://www.nasdaq.com/symbol/mmm&quot;, &quot;https://www.nasdaq…</code></pre>
+<p>Based on this dataset, we are showing the number of companies per sector.</p>
+<pre class="r"><code>comp_per_sector &lt;- nyse %&gt;% 
+  group_by(sector) %&gt;% 
+  summarise(companies = n()) %&gt;% 
+  slice_max(companies, n=100) %&gt;% 
+  mutate(sector = fct_reorder(sector, companies))
+comp_per_sector </code></pre>
+<pre><code>## # A tibble: 12 × 2
+##    sector                companies
+##    &lt;fct&gt;                     &lt;int&gt;
+##  1 Finance                      97
+##  2 Consumer Services            79
+##  3 Public Utilities             60
+##  4 Capital Goods                45
+##  5 Health Care                  45
+##  6 Energy                       42
+##  7 Technology                   40
+##  8 Basic Industries             39
+##  9 Consumer Non-Durables        31
+## 10 Miscellaneous                12
+## 11 Transportation               10
+## 12 Consumer Durables             8</code></pre>
+<pre class="r"><code>ggplot(comp_per_sector) +
+  aes(x = companies, y = sector) +
+  geom_col() +
+  labs(
+    title = &#39;Finance is the Largest Sector, Consumer Durables is the smallest&#39;,
+    subtitle = &quot;Companies Per Sector&quot;,
+    x = &#39;Companies&#39;,
+    y = &#39;Sector&#39;,
+    caption = &#39;Source: Federal Reserve Economic Database&#39;,
+  ) </code></pre>
+<p><img src="/blog/Stock/homework1_done_files/figure-html/companies_per_sector-1.png" width="648" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>comp_per_sector &lt;- nyse %&gt;% 
+  group_by(sector) %&gt;% 
+  summarise(companies = n()) %&gt;% 
+  slice_max(companies, n=100) %&gt;% 
+  mutate(sector = fct_reorder(sector, companies))
+  
+ggplot(comp_per_sector) +
+  aes(x = companies, y = sector) +
+  geom_col()</code></pre>
+<p><img src="/blog/Stock/homework1_done_files/figure-html/companies_per_sector-2.png" width="648" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>comp_per_sector</code></pre>
+<pre><code>## # A tibble: 12 × 2
+##    sector                companies
+##    &lt;fct&gt;                     &lt;int&gt;
+##  1 Finance                      97
+##  2 Consumer Services            79
+##  3 Public Utilities             60
+##  4 Capital Goods                45
+##  5 Health Care                  45
+##  6 Energy                       42
+##  7 Technology                   40
+##  8 Basic Industries             39
+##  9 Consumer Non-Durables        31
+## 10 Miscellaneous                12
+## 11 Transportation               10
+## 12 Consumer Durables             8</code></pre>
+<pre class="r"><code>nyse</code></pre>
+<pre><code>## # A tibble: 508 × 6
+##    symbol name                             ipo_year sector       indus…¹ summa…²
+##    &lt;chr&gt;  &lt;chr&gt;                            &lt;chr&gt;    &lt;chr&gt;        &lt;chr&gt;   &lt;chr&gt;  
+##  1 MMM    3M Company                       n/a      Health Care  Medica… https:…
+##  2 ABB    ABB Ltd                          n/a      Consumer Du… Electr… https:…
+##  3 ABT    Abbott Laboratories              n/a      Health Care  Major … https:…
+##  4 ABBV   AbbVie Inc.                      2012     Health Care  Major … https:…
+##  5 ACN    Accenture plc                    2001     Miscellaneo… Busine… https:…
+##  6 AAP    Advance Auto Parts Inc           n/a      Consumer Se… Other … https:…
+##  7 AFL    Aflac Incorporated               n/a      Finance      Accide… https:…
+##  8 A      Agilent Technologies, Inc.       1999     Capital Goo… Biotec… https:…
+##  9 AEM    Agnico Eagle Mines Limited       n/a      Basic Indus… Precio… https:…
+## 10 APD    Air Products and Chemicals, Inc. n/a      Basic Indus… Major … https:…
+## # … with 498 more rows, and abbreviated variable names ¹​industry,
+## #   ²​summary_quote</code></pre>
+<p>We are choosing some stocks and downloading their ticker data to analyse.</p>
+<pre class="r"><code># Notice the cache=TRUE argument in the chunk options. Because getting data is time consuming, 
+# cache=TRUE means that once it downloads data, the chunk will not run again next time you knit your Rmd
+
+myStocks &lt;- c(&quot;MMM&quot;,&quot;ABT&quot;,&quot;ACN&quot;,&quot;ANTM&quot;,&quot;AGR&quot;,&quot;TSLA&quot;,&quot;SPY&quot; ) %&gt;%
+  tq_get(get  = &quot;stock.prices&quot;,
+         from = &quot;2011-01-01&quot;,
+         to   = &quot;2022-08-31&quot;) %&gt;%
+  group_by(symbol) 
+
+glimpse(myStocks) # examine the structure of the resulting data frame</code></pre>
+<pre><code>## Rows: 16,362
+## Columns: 8
+## Groups: symbol [6]
+## $ symbol   &lt;chr&gt; &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;, &quot;MMM&quot;…
+## $ date     &lt;date&gt; 2011-01-03, 2011-01-04, 2011-01-05, 2011-01-06, 2011-01-07, …
+## $ open     &lt;dbl&gt; 86.8, 87.0, 86.3, 86.9, 86.6, 85.7, 87.3, 88.0, 88.5, 87.7, 8…
+## $ high     &lt;dbl&gt; 87.3, 87.3, 87.9, 87.2, 87.3, 87.3, 88.3, 88.8, 88.9, 88.1, 8…
+## $ low      &lt;dbl&gt; 86.7, 86.3, 86.1, 85.6, 85.9, 85.7, 87.3, 87.9, 87.8, 87.4, 8…
+## $ close    &lt;dbl&gt; 86.8, 86.7, 86.7, 86.1, 86.2, 87.2, 87.7, 88.7, 88.0, 88.1, 8…
+## $ volume   &lt;dbl&gt; 2632800, 2644100, 4081300, 3452600, 3355500, 3475200, 3024400…
+## $ adjusted &lt;dbl&gt; 62.3, 62.2, 62.2, 61.9, 61.9, 62.6, 63.0, 63.7, 63.2, 63.3, 6…</code></pre>
+<p>Financial performance analysis depend on returns; If I buy a stock today for 100 and I sell it tomorrow for 101.75, my one-day return, assuming no transaction costs, is 1.75%. So given the adjusted closing prices, our first step is to calculate daily and monthly returns.</p>
+<pre class="r"><code>#calculate daily returns
+myStocks_returns_daily &lt;- myStocks %&gt;%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = &quot;daily&quot;, 
+               type       = &quot;log&quot;,
+               col_rename = &quot;daily_returns&quot;,
+               cols = c(nested.col))  
+
+#calculate monthly  returns
+myStocks_returns_monthly &lt;- myStocks %&gt;%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = &quot;monthly&quot;, 
+               type       = &quot;arithmetic&quot;,
+               col_rename = &quot;monthly_returns&quot;,
+               cols = c(nested.col)) 
+
+#calculate yearly returns
+myStocks_returns_annual &lt;- myStocks %&gt;%
+  group_by(symbol) %&gt;%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = &quot;yearly&quot;, 
+               type       = &quot;arithmetic&quot;,
+               col_rename = &quot;yearly_returns&quot;,
+               cols = c(nested.col))</code></pre>
+<div id="summary-statistics-for-monthly-returns" class="section level3">
+<h3>Summary Statistics For Monthly Returns</h3>
+<pre class="r"><code>summary_monthly_returns &lt;- myStocks_returns_monthly %&gt;% 
+  
+  group_by(symbol) %&gt;% 
+  summarise(min_return = min(monthly_returns),
+            max_return = max(monthly_returns),
+            median_return = median(monthly_returns),
+            mean_return = mean(monthly_returns),
+            sd_return = sd(monthly_returns))
+  
+summary_monthly_returns</code></pre>
+<pre><code>## # A tibble: 6 × 6
+##   symbol min_return max_return median_return mean_return sd_return
+##   &lt;chr&gt;       &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;
+## 1 ABT        -0.152      0.172       0.0116      0.0140     0.0539
+## 2 ACN        -0.145      0.160       0.0216      0.0164     0.0613
+## 3 AGR        -0.112      0.186       0.00272     0.00838    0.0521
+## 4 MMM        -0.150      0.113       0.0121      0.00651    0.0551
+## 5 SPY        -0.125      0.127       0.0146      0.0106     0.0404
+## 6 TSLA       -0.224      0.811       0.0117      0.0501     0.177</code></pre>
+<p>To analyse the distribution of the returns, we plot a density plot for each of the stocks.</p>
+<pre class="r"><code>myStocks_returns_monthly %&gt;% 
+  group_by(symbol) %&gt;% 
+  ggplot() +
+  aes (x = monthly_returns, fill = symbol) +
+  geom_density() +
+  labs(
+    title = &#39;TSLA Has the Widest Spread&#39;,
+    subtitle = &#39;Density Plot - Stockwise Monthly Return&#39;,
+    x = &#39;Return&#39;,
+    y = &#39;Density&#39;,
+    caption = &#39;Source: Federal Reserve Economic Database&#39;
+  ) +
+  facet_wrap(~symbol, ncol = 1) +
+  #facet_grid()+
+ theme_bw()+
+  theme(legend.position = &quot;none&quot;)+
+  scale_x_continuous(labels = scales::percent)</code></pre>
+<p><img src="/blog/Stock/homework1_done_files/figure-html/density_monthly_returns-1.png" width="648" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># YOUR CODE GOES HERE</code></pre>
+<p>The graph shows that TSLA has the widest spread, suggesting it has the greatest deviation from the mean and thus is the most risky stock. The remaining stocks have a similar spread, we need further analysis to come to a concrete conclusion to determine which stock is the least risky.</p>
+<p>Finally we made a plot to show the expected monthly return per stock.</p>
+<pre class="r"><code>  summary_monthly_returns %&gt;% 
+  ggplot() +
+  aes(x = mean_return, y = sd_return, label = symbol, colour = symbol)+
+  ggrepel::geom_text_repel()+
+  geom_point()+
+  coord_flip()+
+ # theme_minimal()+
+  theme(legend.position = &quot;none&quot;)+
+  scale_x_continuous(labels = scales::percent)+
+  scale_y_continuous(labels = scales::percent)+
+  labs(
+    title = &quot;Tesla Stock Involves the Highest Risk and Return&quot; ,
+    subtitle = &quot;Risk Return Analysis&quot;,
+    x = &quot;Percentage Risk Involved&quot;,
+    y = &quot;Expected Monthly Return&quot;,
+    caption = &#39;Source: Federal Reserve Economic Database&#39;
+  )</code></pre>
+<p><img src="/blog/Stock/homework1_done_files/figure-html/risk_return_plot-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>According to our analysis, TSLA stock is the most risky stock with fluctuations around 5%. It also offers the highest return with an expected monthly return of 16%. On the other hand MMM provides the least risk with fluctations less than 1% and also offers a relatively high retrun, which is above 4%.</p>
+</div>
+<div id="details" class="section level3">
+<h3>Details</h3>
+<ul>
+<li>Our team members are: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew Robak, Shivant Maharaj</li>
+</ul>
+</div>
+</div>

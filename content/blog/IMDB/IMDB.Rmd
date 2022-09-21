@@ -1,0 +1,200 @@
+---
+title: "Analysis on IMDB movies"
+author: "Group 12 of MAM2023 @LBS"
+date: "`r Sys.Date()`"
+image: images/blog/IMDB.jpeg
+output:
+  html_document:
+    theme: flatly
+    highlight: zenburn
+    number_sections: yes
+    toc: yes
+    code_folding: show
+---
+
+```{r, setup, echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+```{r load-libraries, warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(lubridate)
+library(here)
+library(skimr)
+library(janitor)
+library(vroom)
+library(tidyquant)
+library(scales)
+```
+
+# Analysis of movies- IMDB dataset
+
+We are now analysing a dataset from imbd with 5000 movies. We will analyse the differences between genres in terms of ratings, popularity (facebook likes), and revenue.
+
+```{r,load_movies}
+
+movies <- read_csv("https://raw.githubusercontent.com/jas0nh/hello-world/master/movies.csv")
+
+```
+
+The movies dataset was imported and inspected using Skimr, and there were no missing values identified within the dataset. When checking for duplicates within the dataset, we identified that there were 54 duplicated titles which may result in duplicated entries within the dataset.
+
+
+### Table showing the amount of IMBD movies per genre
+
+```{r , count_of_movies_per_genre}
+
+movies_by_genre <- movies %>% 
+  group_by(genre) %>% 
+  summarize(count = n()) %>% 
+  arrange(desc(count))
+  
+movies_by_genre
+```
+
+
+
+### Table showing movie revenue indicators per genre
+
+```{r , avg_gross_earning}
+
+movies %>% 
+  mutate(return_on_budget = gross/budget) %>% 
+  group_by(genre) %>% 
+  summarize(average_gross = mean(gross), average_budget = mean(budget),  average_return_on_budget = mean(return_on_budget)) %>% 
+  arrange(desc(average_return_on_budget)) 
+
+
+```
+
+
+### Table showing the Top 15 directors ranked by highest mean gross revenue
+
+```{r , top_directors}
+
+movies %>% 
+  group_by(director) %>% 
+  summarize(highest_gross_revenue = sum(gross), mean_gross_revenue = mean(gross), median_gross_revenue = median(gross), standard_deviation = sd(gross)) %>% 
+  slice_max(highest_gross_revenue, n = 15)
+
+```
+
+
+## Graphics showing the spread of IMDB ratings per genre
+
+### Table showing the summary statistics for IMDB movie ratings
+
+We have added both a density graph and a box plot to visually represent how ratings are distributed. We believe that the box plot more accurately represents the distribution of ratings per genre, with taking the count of rating submissions as well. When cross-analyzing the various distributions, the box plot diagrams allow for an easier comparison between genres.
+
+```{r, ratings}
+# summarizing the dataset by genre
+data <- movies %>% 
+  group_by(genre) %>% 
+  summarize(mean = mean(rating), min = min(rating), max(rating), median = median(rating), standard_dev = sd(rating))
+
+data
+
+#We have added an additional visualisation for the representation of the distribution of ratings
+ggplot(movies) + aes(x = rating, y = genre ) + geom_boxplot() + labs(
+    title = 'Distribution of IMDb movie ratings is largely uniform accross genres',
+    subtitle = 'Box plot showing the variation of IMDB genre ratings',
+    x = 'Ratings',
+    y = 'Genres',
+    caption = 'Source: Kaggle IMDB 5000 movie dataset',
+    xticks = ''
+  )
+
+#Required visualisation
+ggplot(movies) + aes(rating) + geom_density() +
+  facet_wrap(vars(genre)) + labs(
+    title = 'Distribution of IMDb movie ratings is largely uniform accross genres',
+    subtitle = 'Density graph showing the variation in IMDB genre ratings',
+    x = 'Ratings',
+    y = 'Density',
+    caption = 'Source: Kaggle IMDB 5000 movie dataset',
+    xticks = ''
+  )
+
+```
+
+```{=html}
+<!-- ### Use `ggplot` to answer the following
+
+-   Examine the relationship between `gross` and `cast_facebook_likes`. Produce a scatterplot and write one sentence discussing whether the number of facebook likes that the cast has received is likely to be a good predictor of how much money a movie will make at the box office. What variable are you going to map to the Y- and X- axes? -->
+```
+> The number of facebook likes is not a good predictor of how much money a movie will make at the box office as movies with the same number of likes received by cast earned vastly different amounts.
+
+```{r, gross_on_fblikes}
+# creating a scatterplot of the likes and revenue
+ggplot(movies) +
+  aes(x = cast_facebook_likes, y = gross) +
+  geom_point() +
+  scale_x_log10(labels = comma) +
+  scale_y_continuous(labels = dollar) + #We changed the scale of the visualsation to make it more presentable
+  labs(
+    title = "Number of Cast's Facebook Likes is not a Good Predictor of Gross Movie Earnings",
+    subtitle = 'Relationship Between Facebook Likes Received by Cast and Total US Earnings',
+    x = "# Facebook Likes Cast Members Received",
+    y = "Gross Earnings in the US Box Office, not Inflation-adjusted",
+    caption = 'Source: Kaggle IMDB 5000 movie dataset')
+
+```
+
+
+Gross US Earnings could be predicted by looking at the movie's budget as the two variables display a positive relationship relationship.
+
+```{r, gross_on_budget}
+# creating a scatterplot to analyse the revenue and ratings
+ggplot(movies) +
+  aes(x = budget, y = gross) +
+  geom_point() +
+  scale_x_continuous(labels = dollar) + 
+  scale_y_continuous(labels = dollar) +
+  geom_smooth(method='lm') + #We added a line of best fit to the visualsation to plot the general trend within the revenue
+    labs(
+    title = "Gross US Earnings Can Be Consistently Predicted by the Movie's Budget",
+    subtitle = "Relationship Between Movie's Budget by Cast and Total US Earnings",
+    x = "Movie's Budget",
+    y = "Gross Earnings in the US Box Office, not Inflation-adjusted",
+    caption = 'Source: Kaggle IMDB 5000 movie dataset')
+```
+
+In general, IMDB ratings could be used to predict the gross earnings of movies in the US - this positive relationship is particularly visible in the Action, Adventure, and Comedy genres. However, data in the 'movies' dataset is not uniformly distributed across genres, with some genres containing only a few data points, which prohibits a meaningful analysis of the relationship between IMDB ratings and gross earnings.
+
+Outliers are most visible in the Action, Drama, and Family genres. Some genres (Biography, Crime) only contain movies with a minimum rating of approximately 5.0 - it might be the case that movies of these types generally receive higher ratings. Lastly, genres such as Fantasy and Sci-Fi do not exhibit any relationship between IMDB ratings and gross earnings.
+
+```{r, gross_on_rating}
+# Creating a scatterplot of revenue and rating, faceted by genre
+ggplot(movies) +
+  aes(x = rating, y = gross, color = genre) +
+  facet_wrap(vars(genre)) +
+  theme(legend.position = 'none') +
+  geom_point() +
+  scale_y_continuous(labels = dollar) +
+  labs(
+    title = "Gross earnings could be predicted with IMDB ratings, with some genres lacking enough data points to identify a positive relationship",
+    subtitle = 'Relationship Between IMDB Ratings and Total US Earnings',
+    x = "IMDB Rating",
+    y = "Gross Earnings in the US Box Office, not Inflation-adjusted",
+    caption = 'Source: Kaggle IMDB 5000 movie dataset',
+  )
+```
+
+### Details
+
+-   Our team members are: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew Robak, Shivant Maharaj
+

@@ -1,0 +1,216 @@
+---
+title: "Analysis on IMDB movies"
+author: "Group 12 of MAM2023 @LBS"
+date: "2022-09-21"
+image: images/blog/IMDB.jpeg
+output:
+  html_document:
+    theme: flatly
+    highlight: zenburn
+    number_sections: yes
+    toc: yes
+    code_folding: show
+---
+
+
+
+<div id="analysis-of-movies--imdb-dataset" class="section level1">
+<h1>Analysis of movies- IMDB dataset</h1>
+<p>We are now analysing a dataset from imbd with 5000 movies. We will analyse the differences between genres in terms of ratings, popularity (facebook likes), and revenue.</p>
+<pre class="r"><code>movies &lt;- read_csv(&quot;https://raw.githubusercontent.com/jas0nh/hello-world/master/movies.csv&quot;)</code></pre>
+<p>The movies dataset was imported and inspected using Skimr, and there were no missing values identified within the dataset. When checking for duplicates within the dataset, we identified that there were 54 duplicated titles which may result in duplicated entries within the dataset.</p>
+<div id="table-showing-the-amount-of-imbd-movies-per-genre" class="section level3">
+<h3>Table showing the amount of IMBD movies per genre</h3>
+<pre class="r"><code>movies_by_genre &lt;- movies %&gt;% 
+  group_by(genre) %&gt;% 
+  summarize(count = n()) %&gt;% 
+  arrange(desc(count))
+  
+movies_by_genre</code></pre>
+<pre><code>## # A tibble: 17 × 2
+##    genre       count
+##    &lt;chr&gt;       &lt;int&gt;
+##  1 Comedy        848
+##  2 Action        738
+##  3 Drama         498
+##  4 Adventure     288
+##  5 Crime         202
+##  6 Biography     135
+##  7 Horror        131
+##  8 Animation      35
+##  9 Fantasy        28
+## 10 Documentary    25
+## 11 Mystery        16
+## 12 Sci-Fi          7
+## 13 Family          3
+## 14 Musical         2
+## 15 Romance         2
+## 16 Western         2
+## 17 Thriller        1</code></pre>
+</div>
+<div id="table-showing-movie-revenue-indicators-per-genre" class="section level3">
+<h3>Table showing movie revenue indicators per genre</h3>
+<pre class="r"><code>movies %&gt;% 
+  mutate(return_on_budget = gross/budget) %&gt;% 
+  group_by(genre) %&gt;% 
+  summarize(average_gross = mean(gross), average_budget = mean(budget),  average_return_on_budget = mean(return_on_budget)) %&gt;% 
+  arrange(desc(average_return_on_budget)) </code></pre>
+<pre><code>## # A tibble: 17 × 4
+##    genre       average_gross average_budget average_return_on_budget
+##    &lt;chr&gt;               &lt;dbl&gt;          &lt;dbl&gt;                    &lt;dbl&gt;
+##  1 Horror          37713738.      13504916.                 88.3    
+##  2 Biography       45201805.      28543696.                 22.3    
+##  3 Musical         92084000        3189500                  18.8    
+##  4 Family         149160478.      14833333.                 14.1    
+##  5 Documentary     17353973.       5887852.                  8.70   
+##  6 Western         20821884        3465000                   7.06   
+##  7 Fantasy         42408841.      17582143.                  6.68   
+##  8 Animation       98433792.      61701429.                  5.01   
+##  9 Comedy          42630552.      24446319.                  3.71   
+## 10 Mystery         67533021.      39218750                   3.27   
+## 11 Romance         31264848.      25107500                   3.17   
+## 12 Drama           37465371.      26242933.                  2.95   
+## 13 Adventure       95794257.      66290069.                  2.41   
+## 14 Crime           37502397.      26596169.                  2.17   
+## 15 Action          86583860.      71354888.                  1.92   
+## 16 Sci-Fi          29788371.      27607143.                  1.58   
+## 17 Thriller            2468         300000                   0.00823</code></pre>
+</div>
+<div id="table-showing-the-top-15-directors-ranked-by-highest-mean-gross-revenue" class="section level3">
+<h3>Table showing the Top 15 directors ranked by highest mean gross revenue</h3>
+<pre class="r"><code>movies %&gt;% 
+  group_by(director) %&gt;% 
+  summarize(highest_gross_revenue = sum(gross), mean_gross_revenue = mean(gross), median_gross_revenue = median(gross), standard_deviation = sd(gross)) %&gt;% 
+  slice_max(highest_gross_revenue, n = 15)</code></pre>
+<pre><code>## # A tibble: 15 × 5
+##    director          highest_gross_revenue mean_gross_revenue median_g…¹ stand…²
+##    &lt;chr&gt;                             &lt;dbl&gt;              &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;
+##  1 Steven Spielberg             4014061704         174524422. 164435221   1.01e8
+##  2 Michael Bay                  2231242537         171634041. 138396624   1.27e8
+##  3 Tim Burton                   2071275480         129454718.  76519172   1.09e8
+##  4 Sam Raimi                    2014600898         201460090. 234903076   1.62e8
+##  5 James Cameron                1909725910         318287652. 175562880.  3.09e8
+##  6 Christopher Nolan            1813227576         226653447  196667606.  1.87e8
+##  7 George Lucas                 1741418480         348283696  380262555   1.46e8
+##  8 Robert Zemeckis              1619309108         124562239. 100853835   9.13e7
+##  9 Clint Eastwood               1378321100          72543216.  46700000   7.55e7
+## 10 Francis Lawrence             1358501971         271700394. 281666058   1.35e8
+## 11 Ron Howard                   1335988092         111332341  101587923   8.19e7
+## 12 Gore Verbinski               1329600995         189942999. 123207194   1.54e8
+## 13 Andrew Adamson               1137446920         284361730  279680930.  1.21e8
+## 14 Shawn Levy                   1129750988         102704635.  85463309   6.55e7
+## 15 Ridley Scott                 1128857598          80632686.  47775715   6.88e7
+## # … with abbreviated variable names ¹​median_gross_revenue, ²​standard_deviation</code></pre>
+</div>
+<div id="graphics-showing-the-spread-of-imdb-ratings-per-genre" class="section level2">
+<h2>Graphics showing the spread of IMDB ratings per genre</h2>
+<div id="table-showing-the-summary-statistics-for-imdb-movie-ratings" class="section level3">
+<h3>Table showing the summary statistics for IMDB movie ratings</h3>
+<p>We have added both a density graph and a box plot to visually represent how ratings are distributed. We believe that the box plot more accurately represents the distribution of ratings per genre, with taking the count of rating submissions as well. When cross-analyzing the various distributions, the box plot diagrams allow for an easier comparison between genres.</p>
+<pre class="r"><code># summarizing the dataset by genre
+data &lt;- movies %&gt;% 
+  group_by(genre) %&gt;% 
+  summarize(mean = mean(rating), min = min(rating), max(rating), median = median(rating), standard_dev = sd(rating))
+
+data</code></pre>
+<pre><code>## # A tibble: 17 × 6
+##    genre        mean   min `max(rating)` median standard_dev
+##    &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt;        &lt;dbl&gt;
+##  1 Action       6.23   2.1           9     6.3         1.03 
+##  2 Adventure    6.51   2.3           8.6   6.6         1.09 
+##  3 Animation    6.65   4.5           8     6.9         0.968
+##  4 Biography    7.11   4.5           8.9   7.2         0.760
+##  5 Comedy       6.11   1.9           8.8   6.2         1.02 
+##  6 Crime        6.92   4.8           9.3   6.9         0.849
+##  7 Documentary  6.66   1.6           8.5   7.4         1.77 
+##  8 Drama        6.73   2.1           8.8   6.8         0.917
+##  9 Family       6.5    5.7           7.9   5.9         1.22 
+## 10 Fantasy      6.15   4.3           7.9   6.45        0.959
+## 11 Horror       5.83   3.6           8.5   5.9         1.01 
+## 12 Musical      6.75   6.3           7.2   6.75        0.636
+## 13 Mystery      6.86   4.6           8.5   6.9         0.882
+## 14 Romance      6.65   6.2           7.1   6.65        0.636
+## 15 Sci-Fi       6.66   5             8.2   6.4         1.09 
+## 16 Thriller     4.8    4.8           4.8   4.8        NA    
+## 17 Western      5.7    4.1           7.3   5.7         2.26</code></pre>
+<pre class="r"><code>#We have added an additional visualisation for the representation of the distribution of ratings
+ggplot(movies) + aes(x = rating, y = genre ) + geom_boxplot() + labs(
+    title = &#39;Distribution of IMDb movie ratings is largely uniform accross genres&#39;,
+    subtitle = &#39;Box plot showing the variation of IMDB genre ratings&#39;,
+    x = &#39;Ratings&#39;,
+    y = &#39;Genres&#39;,
+    caption = &#39;Source: Kaggle IMDB 5000 movie dataset&#39;,
+    xticks = &#39;&#39;
+  )</code></pre>
+<p><img src="/blog/IMDB/IMDB_files/figure-html/ratings-1.png" width="648" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Required visualisation
+ggplot(movies) + aes(rating) + geom_density() +
+  facet_wrap(vars(genre)) + labs(
+    title = &#39;Distribution of IMDb movie ratings is largely uniform accross genres&#39;,
+    subtitle = &#39;Density graph showing the variation in IMDB genre ratings&#39;,
+    x = &#39;Ratings&#39;,
+    y = &#39;Density&#39;,
+    caption = &#39;Source: Kaggle IMDB 5000 movie dataset&#39;,
+    xticks = &#39;&#39;
+  )</code></pre>
+<p><img src="/blog/IMDB/IMDB_files/figure-html/ratings-2.png" width="648" style="display: block; margin: auto;" /></p>
+<!-- ### Use `ggplot` to answer the following
+
+-   Examine the relationship between `gross` and `cast_facebook_likes`. Produce a scatterplot and write one sentence discussing whether the number of facebook likes that the cast has received is likely to be a good predictor of how much money a movie will make at the box office. What variable are you going to map to the Y- and X- axes? -->
+<blockquote>
+<p>The number of facebook likes is not a good predictor of how much money a movie will make at the box office as movies with the same number of likes received by cast earned vastly different amounts.</p>
+</blockquote>
+<pre class="r"><code># creating a scatterplot of the likes and revenue
+ggplot(movies) +
+  aes(x = cast_facebook_likes, y = gross) +
+  geom_point() +
+  scale_x_log10(labels = comma) +
+  scale_y_continuous(labels = dollar) + #We changed the scale of the visualsation to make it more presentable
+  labs(
+    title = &quot;Number of Cast&#39;s Facebook Likes is not a Good Predictor of Gross Movie Earnings&quot;,
+    subtitle = &#39;Relationship Between Facebook Likes Received by Cast and Total US Earnings&#39;,
+    x = &quot;# Facebook Likes Cast Members Received&quot;,
+    y = &quot;Gross Earnings in the US Box Office, not Inflation-adjusted&quot;,
+    caption = &#39;Source: Kaggle IMDB 5000 movie dataset&#39;)</code></pre>
+<p><img src="/blog/IMDB/IMDB_files/figure-html/gross_on_fblikes-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>Gross US Earnings could be predicted by looking at the movie’s budget as the two variables display a positive relationship relationship.</p>
+<pre class="r"><code># creating a scatterplot to analyse the revenue and ratings
+ggplot(movies) +
+  aes(x = budget, y = gross) +
+  geom_point() +
+  scale_x_continuous(labels = dollar) + 
+  scale_y_continuous(labels = dollar) +
+  geom_smooth(method=&#39;lm&#39;) + #We added a line of best fit to the visualsation to plot the general trend within the revenue
+    labs(
+    title = &quot;Gross US Earnings Can Be Consistently Predicted by the Movie&#39;s Budget&quot;,
+    subtitle = &quot;Relationship Between Movie&#39;s Budget by Cast and Total US Earnings&quot;,
+    x = &quot;Movie&#39;s Budget&quot;,
+    y = &quot;Gross Earnings in the US Box Office, not Inflation-adjusted&quot;,
+    caption = &#39;Source: Kaggle IMDB 5000 movie dataset&#39;)</code></pre>
+<p><img src="/blog/IMDB/IMDB_files/figure-html/gross_on_budget-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>In general, IMDB ratings could be used to predict the gross earnings of movies in the US - this positive relationship is particularly visible in the Action, Adventure, and Comedy genres. However, data in the ‘movies’ dataset is not uniformly distributed across genres, with some genres containing only a few data points, which prohibits a meaningful analysis of the relationship between IMDB ratings and gross earnings.</p>
+<p>Outliers are most visible in the Action, Drama, and Family genres. Some genres (Biography, Crime) only contain movies with a minimum rating of approximately 5.0 - it might be the case that movies of these types generally receive higher ratings. Lastly, genres such as Fantasy and Sci-Fi do not exhibit any relationship between IMDB ratings and gross earnings.</p>
+<pre class="r"><code># Creating a scatterplot of revenue and rating, faceted by genre
+ggplot(movies) +
+  aes(x = rating, y = gross, color = genre) +
+  facet_wrap(vars(genre)) +
+  theme(legend.position = &#39;none&#39;) +
+  geom_point() +
+  scale_y_continuous(labels = dollar) +
+  labs(
+    title = &quot;Gross earnings could be predicted with IMDB ratings, with some genres lacking enough data points to identify a positive relationship&quot;,
+    subtitle = &#39;Relationship Between IMDB Ratings and Total US Earnings&#39;,
+    x = &quot;IMDB Rating&quot;,
+    y = &quot;Gross Earnings in the US Box Office, not Inflation-adjusted&quot;,
+    caption = &#39;Source: Kaggle IMDB 5000 movie dataset&#39;,
+  )</code></pre>
+<p><img src="/blog/IMDB/IMDB_files/figure-html/gross_on_rating-1.png" width="648" style="display: block; margin: auto;" /></p>
+</div>
+<div id="details" class="section level3">
+<h3>Details</h3>
+<ul>
+<li>Our team members are: Samarth Sharma, Vivian van Oosten, Anastasia Fu, Jaelyn Shi, Andrew Robak, Shivant Maharaj</li>
+</ul>
+</div>
+</div>
+</div>
